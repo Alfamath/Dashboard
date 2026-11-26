@@ -67,6 +67,266 @@ KOORDINAT_TUJUAN = {
 
 
 
+# Basis data negara: nama|alias;alias|ibu kota|lat|lon  (dipakai untuk mencocokkan node otomatis)
+_NEGARA = """
+Algeria||Algiers|36.75|3.06
+Angola||Luanda|-8.84|13.23
+Benin||Porto-Novo|6.50|2.63
+Botswana||Gaborone|-24.65|25.91
+Burkina Faso||Ouagadougou|12.37|-1.52
+Burundi||Bujumbura|-3.38|29.36
+Cameroon|Kamerun|Yaounde|3.85|11.50
+Cape Verde|Cabo Verde|Praia|14.93|-23.51
+Central African Republic||Bangui|4.36|18.56
+Chad||N'Djamena|12.13|15.06
+Comoros||Moroni|-11.70|43.26
+Congo|Republic of the Congo;Congo Brazzaville;Congo Republic|Brazzaville|-4.27|15.28
+Congo, DRC|DRC;DR Congo;Congo DRC;Democratic Republic of the Congo;Congo Kinshasa;Congo Democratic Republic|Kinshasa|-4.44|15.27
+Cote d'Ivoire|Ivory Coast;Pantai Gading|Yamoussoukro|6.83|-5.29
+Djibouti||Djibouti|11.59|43.15
+Egypt|Mesir|Cairo|30.04|31.24
+Equatorial Guinea||Malabo|3.75|8.78
+Eritrea||Asmara|15.32|38.93
+Eswatini|Swaziland|Mbabane|-26.32|31.14
+Ethiopia|Etiopia|Addis Ababa|9.03|38.74
+Gabon||Libreville|0.39|9.45
+Gambia||Banjul|13.45|-16.58
+Ghana||Accra|5.60|-0.19
+Guinea||Conakry|9.64|-13.58
+Guinea-Bissau||Bissau|11.86|-15.60
+Kenya||Nairobi|-1.29|36.82
+Lesotho||Maseru|-29.31|27.48
+Liberia||Monrovia|6.30|-10.80
+Libya|Libia|Tripoli|32.89|13.19
+Madagascar||Antananarivo|-18.88|47.51
+Malawi||Lilongwe|-13.96|33.77
+Mali||Bamako|12.64|-8.00
+Mauritania||Nouakchott|18.08|-15.98
+Mauritius||Port Louis|-20.16|57.50
+Morocco|Maroko|Rabat|34.02|-6.83
+Mozambique|Mozambik|Maputo|-25.97|32.57
+Namibia||Windhoek|-22.56|17.08
+Niger||Niamey|13.51|2.11
+Nigeria||Abuja|9.06|7.49
+Rwanda||Kigali|-1.95|30.06
+Sao Tome and Principe|Sao Tome|Sao Tome|0.34|6.73
+Senegal||Dakar|14.72|-17.47
+Seychelles||Victoria|-4.62|55.45
+Sierra Leone||Freetown|8.48|-13.23
+Somalia||Mogadishu|2.05|45.32
+South Africa|Afrika Selatan;RSA|Pretoria|-25.75|28.19
+South Sudan|Sudan Selatan|Juba|4.85|31.58
+Sudan||Khartoum|15.50|32.56
+Tanzania|United Republic of Tanzania|Dodoma|-6.16|35.75
+Togo||Lome|6.13|1.22
+Tunisia|Tunisia|Tunis|36.81|10.18
+Uganda||Kampala|0.35|32.58
+Zambia||Lusaka|-15.39|28.32
+Zimbabwe||Harare|-17.83|31.05
+Afghanistan||Kabul|34.53|69.17
+Armenia||Yerevan|40.18|44.51
+Azerbaijan||Baku|40.41|49.87
+Bahrain||Manama|26.23|50.59
+Bangladesh||Dhaka|23.81|90.41
+Bhutan||Thimphu|27.47|89.64
+Brunei||Bandar Seri Begawan|4.89|114.94
+Cambodia|Kamboja|Phnom Penh|11.56|104.93
+China|Tiongkok;PRC;People's Republic of China|Beijing|39.90|116.41
+Georgia||Tbilisi|41.72|44.79
+India||New Delhi|28.61|77.21
+Indonesia||Jakarta|-6.21|106.85
+Iran||Tehran|35.69|51.39
+Iraq|Irak|Baghdad|33.31|44.36
+Israel||Jerusalem|31.77|35.21
+Japan|Jepang|Tokyo|35.68|139.69
+Jordan|Yordania|Amman|31.95|35.93
+Kazakhstan||Astana|51.17|71.43
+Kuwait||Kuwait City|29.38|47.99
+Kyrgyzstan||Bishkek|42.87|74.59
+Laos||Vientiane|17.97|102.63
+Lebanon|Libanon|Beirut|33.89|35.50
+Malaysia||Kuala Lumpur|3.14|101.69
+Maldives||Male|4.18|73.51
+Mongolia||Ulaanbaatar|47.89|106.91
+Myanmar|Burma|Naypyidaw|19.76|96.08
+Nepal||Kathmandu|27.72|85.32
+North Korea|Korea Utara|Pyongyang|39.04|125.76
+Oman||Muscat|23.59|58.41
+Pakistan||Islamabad|33.69|73.05
+Philippines|Filipina|Manila|14.60|120.98
+Qatar||Doha|25.29|51.53
+Saudi Arabia|Arab Saudi|Riyadh|24.71|46.68
+Singapore|Singapura|Singapore|1.35|103.82
+South Korea|Korea Selatan;Korea;Republic of Korea|Seoul|37.57|126.98
+Sri Lanka||Colombo|6.93|79.86
+Syria|Suriah|Damascus|33.51|36.29
+Tajikistan||Dushanbe|38.56|68.79
+Thailand||Bangkok|13.76|100.50
+Timor-Leste|East Timor;Timor Leste|Dili|-8.56|125.57
+Turkey|Turkiye;Turki|Ankara|39.93|32.86
+Turkmenistan||Ashgabat|37.96|58.33
+United Arab Emirates|UAE;Uni Emirat Arab|Abu Dhabi|24.45|54.38
+Uzbekistan||Tashkent|41.30|69.24
+Vietnam|Viet Nam|Hanoi|21.03|105.85
+Yemen||Sanaa|15.37|44.19
+Albania||Tirana|41.33|19.82
+Austria||Vienna|48.21|16.37
+Belarus||Minsk|53.90|27.57
+Belgium|Belgia|Brussels|50.85|4.35
+Bosnia and Herzegovina|Bosnia|Sarajevo|43.86|18.41
+Bulgaria||Sofia|42.70|23.32
+Croatia|Kroasia|Zagreb|45.81|15.98
+Cyprus||Nicosia|35.19|33.38
+Czech Republic|Czechia;Ceko|Prague|50.08|14.44
+Denmark|Denmark|Copenhagen|55.68|12.57
+Estonia||Tallinn|59.44|24.75
+Finland||Helsinki|60.17|24.94
+France|Prancis|Paris|48.86|2.35
+Germany|Jerman|Berlin|52.52|13.40
+Greece|Yunani|Athens|37.98|23.73
+Hungary|Hungaria|Budapest|47.50|19.04
+Iceland|Islandia|Reykjavik|64.15|-21.94
+Ireland|Irlandia|Dublin|53.35|-6.26
+Italy|Italia|Rome|41.90|12.50
+Kosovo||Pristina|42.66|21.17
+Latvia||Riga|56.95|24.11
+Lithuania||Vilnius|54.69|25.28
+Luxembourg||Luxembourg|49.61|6.13
+Malta||Valletta|35.90|14.51
+Moldova||Chisinau|47.01|28.86
+Montenegro||Podgorica|42.44|19.26
+Netherlands|Belanda;Holland|Amsterdam|52.37|4.90
+North Macedonia|Macedonia|Skopje|42.00|21.43
+Norway|Norwegia|Oslo|59.91|10.75
+Poland|Polandia|Warsaw|52.23|21.01
+Portugal||Lisbon|38.72|-9.14
+Romania|Rumania|Bucharest|44.43|26.10
+Russia|Russian Federation;Rusia|Moscow|55.76|37.62
+Serbia||Belgrade|44.79|20.45
+Slovakia||Bratislava|48.15|17.11
+Slovenia||Ljubljana|46.06|14.51
+Spain|Spanyol|Madrid|40.42|-3.70
+Sweden|Swedia|Stockholm|59.33|18.07
+Switzerland|Swiss|Bern|46.95|7.45
+Ukraine|Ukraina|Kyiv|50.45|30.52
+United Kingdom|UK;Great Britain;England;Inggris;Britain|London|51.51|-0.13
+Argentina||Buenos Aires|-34.60|-58.38
+Bahamas||Nassau|25.05|-77.36
+Barbados||Bridgetown|13.10|-59.61
+Belize||Belmopan|17.25|-88.77
+Bolivia||La Paz|-16.50|-68.15
+Brazil|Brasil|Brasilia|-15.79|-47.88
+Canada|Kanada|Ottawa|45.42|-75.70
+Chile||Santiago|-33.45|-70.67
+Colombia|Kolombia|Bogota|4.71|-74.07
+Costa Rica||San Jose|9.93|-84.08
+Cuba|Kuba|Havana|23.11|-82.37
+Dominican Republic|Republik Dominika|Santo Domingo|18.49|-69.93
+Ecuador||Quito|-0.18|-78.47
+El Salvador||San Salvador|13.69|-89.22
+Guatemala||Guatemala City|14.63|-90.51
+Guyana||Georgetown|6.80|-58.16
+Haiti||Port-au-Prince|18.54|-72.34
+Honduras||Tegucigalpa|14.07|-87.19
+Jamaica||Kingston|17.97|-76.79
+Mexico|Meksiko|Mexico City|19.43|-99.13
+Nicaragua||Managua|12.11|-86.24
+Panama||Panama City|8.98|-79.52
+Paraguay||Asuncion|-25.26|-57.58
+Peru||Lima|-12.05|-77.04
+Suriname||Paramaribo|5.85|-55.20
+Trinidad and Tobago|Trinidad|Port of Spain|10.65|-61.51
+United States|USA;US;United States of America;Amerika Serikat;America|Washington, D.C.|38.91|-77.04
+Uruguay||Montevideo|-34.90|-56.19
+Venezuela||Caracas|10.48|-66.90
+Australia||Canberra|-35.28|149.13
+Fiji||Suva|-18.14|178.44
+New Zealand|Selandia Baru|Wellington|-41.29|174.78
+Papua New Guinea||Port Moresby|-9.44|147.18
+"""
+
+
+def _norm(t):
+    import re
+    import unicodedata
+    t = unicodedata.normalize('NFKD', str(t)).encode('ascii', 'ignore').decode().lower()
+    t = re.sub(r"[^a-z0-9' ]+", ' ', t.replace("'", ''))
+    return re.sub(r'\s+', ' ', t).strip()
+
+
+def _indeks_negara():
+    idx = {}
+    for baris in _NEGARA.strip().splitlines():
+        nama, alias, kota, lat, lon = baris.split('|')
+        for a in [nama] + [x for x in alias.split(';') if x]:
+            idx[_norm(a)] = (nama, float(lat), float(lon), kota)
+    return idx
+
+
+_IDX_NEGARA = _indeks_negara()
+
+
+def _cari_negara_tepat(nama):
+    return _IDX_NEGARA.get(_norm(nama))
+
+
+def _cari_negara_dalam_teks(teks):
+    """Cari nama negara sebagai kata utuh di dalam teks (mis. 'Sun Pharma (India)')."""
+    import re
+    t = ' ' + _norm(teks) + ' '
+    terbaik = None
+    for alias, v in _IDX_NEGARA.items():
+        if len(alias) >= 4 or alias in ('uk', 'us', 'usa', 'uae', 'drc', 'prc'):
+            if ' ' + alias + ' ' in t and (terbaik is None or len(alias) > len(terbaik[0])):
+                terbaik = (alias, v)
+    return terbaik[1] if terbaik else None
+
+
+def resolve_coordinates(nama_sumber, nama_tujuan, base=None):
+    """Cocokkan semua node ke koordinat.
+
+    Urutan: (1) koordinat yang sudah ada/bawaan/CSV, (2) nama mirip dengan node bawaan,
+    (3) tujuan = nama negara, sumber = negara yang disebut dalam namanya.
+    Mengembalikan (coords, status, belum) -> status: daftar dict untuk tabel pengecekan,
+    belum: daftar (jenis, node) yang masih perlu diisi manual.
+    """
+    import difflib
+    coords = dict(base if base is not None else default_coordinates())
+    bawaan = default_coordinates()
+    status, belum = [], []
+    for jenis, names in (('sumber', nama_sumber), ('tujuan', nama_tujuan)):
+        kunci_bawaan = {_norm(n): n for (j, n) in bawaan if j == jenis}
+        for n in names:
+            if (jenis, n) in coords:
+                v = coords[(jenis, n)]
+                status.append({'jenis': jenis, 'node': n, 'sumber koordinat': 'bawaan / CSV',
+                               'lokasi': v[2] if len(v) > 2 else '', 'latitude': v[0], 'longitude': v[1]})
+                continue
+            hasil, cara = None, ''
+            mirip = difflib.get_close_matches(_norm(n), list(kunci_bawaan), n=1, cutoff=0.88)
+            if mirip:
+                v = bawaan[(jenis, kunci_bawaan[mirip[0]])]
+                hasil, cara = v, 'nama mirip: ' + kunci_bawaan[mirip[0]]
+            if hasil is None:
+                neg = _cari_negara_tepat(n) if jenis == 'tujuan' else None
+                if neg is None:
+                    neg = _cari_negara_dalam_teks(n)
+                if neg is None and jenis == 'tujuan':
+                    m = difflib.get_close_matches(_norm(n), list(_IDX_NEGARA), n=1, cutoff=0.86)
+                    neg = _IDX_NEGARA[m[0]] if m else None
+                if neg is not None:
+                    hasil, cara = (neg[1], neg[2], 'ibu kota ' + neg[0]), 'negara: ' + neg[0]
+            if hasil is None:
+                belum.append((jenis, n))
+                status.append({'jenis': jenis, 'node': n, 'sumber koordinat': 'BELUM ADA',
+                               'lokasi': '', 'latitude': None, 'longitude': None})
+            else:
+                coords[(jenis, n)] = hasil
+                status.append({'jenis': jenis, 'node': n, 'sumber koordinat': cara,
+                               'lokasi': hasil[2], 'latitude': hasil[0], 'longitude': hasil[1]})
+    return coords, status, belum
+
+
 def default_coordinates():
     """Koordinat bawaan: {('sumber'|'tujuan', nama): (lat, lon, kota)}."""
     out = {('sumber', n): v for n, v in KOORDINAT_SUMBER.items()}

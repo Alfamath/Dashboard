@@ -7,7 +7,9 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 from algorithms.transportation import METHODS, run_all_methods, solve_modi
-from route_map import build_map_html, default_coordinates
+import hashlib
+
+from route_map import build_map_html, default_coordinates, resolve_coordinates
 
 
 st.set_page_config(
@@ -474,6 +476,43 @@ elif page == "Distribution Map":
             except Exception as exc:
                 st.error(f"CSV koordinat tidak dapat dipakai, koordinat bawaan dipakai: {exc}")
 
+    # Cocokkan otomatis node yang belum punya koordinat (nama mirip / nama negara)
+    coords, coord_status, unresolved = resolve_coordinates(
+        list(supply.index), list(demand.index), coords
+    )
+    if unresolved:
+        st.warning(
+            f"{len(unresolved)} node belum punya koordinat dan tidak bisa dicocokkan otomatis. "
+            "Isi latitude dan longitude pada tabel di bawah (klik sel, ketik angka); "
+            "rute node tersebut akan langsung muncul di peta."
+        )
+        editor_key = "manual_coords_" + hashlib.md5(
+            "|".join(f"{j}:{n}" for j, n in unresolved).encode("utf-8")
+        ).hexdigest()[:10]
+        manual = st.data_editor(
+            pd.DataFrame(
+                [{"jenis": j, "node": n, "latitude": float("nan"), "longitude": float("nan")}
+                 for j, n in unresolved]
+            ),
+            key=editor_key,
+            hide_index=True,
+            use_container_width=True,
+            disabled=["jenis", "node"],
+            column_config={
+                "latitude": st.column_config.NumberColumn("latitude", min_value=-90.0, max_value=90.0, format="%.4f"),
+                "longitude": st.column_config.NumberColumn("longitude", min_value=-180.0, max_value=180.0, format="%.4f"),
+            },
+        )
+        for row in manual.itertuples(index=False):
+            if pd.notna(row.latitude) and pd.notna(row.longitude):
+                coords[(row.jenis, row.node)] = (float(row.latitude), float(row.longitude), "input manual")
+    with st.expander("Status koordinat tiap node (periksa hasil pencocokan otomatis)"):
+        st.caption(
+            "Node bernama negara atau menyebut negara dicocokkan ke ibu kota negara tersebut. "
+            "Ini perkiraan, jadi koreksi lewat CSV bila perlu."
+        )
+        st.dataframe(pd.DataFrame(coord_status), use_container_width=True, hide_index=True)
+
     try:
         modi_each = calculate_modi_each(
             supply_items,
@@ -510,7 +549,7 @@ elif page == "Distribution Map":
         m4.metric("Hemat vs biaya aktual", f"{(1 - modi_result['total_cost'] / actual_cost) * 100:.2f}%")
 
     if missing_nodes:
-        st.warning(
+        st.info(
             f"Koordinat belum tersedia untuk {len(missing_nodes)} node "
             f"({', '.join(missing_nodes[:6])}{'...' if len(missing_nodes) > 6 else ''}). "
             "Rute yang ujungnya tidak punya koordinat tidak digambar; lengkapi lewat CSV."
