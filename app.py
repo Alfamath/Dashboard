@@ -9,7 +9,13 @@ import streamlit.components.v1 as components
 from algorithms.transportation import METHODS, run_all_methods, solve_modi
 import hashlib
 
-from route_map import build_map_html, default_coordinates, resolve_coordinates
+from route_map import (
+    build_map_html,
+    default_coordinates,
+    geocode_nominatim,
+    kandidat_pencarian,
+    resolve_coordinates,
+)
 
 
 st.set_page_config(
@@ -480,12 +486,49 @@ elif page == "Distribution Map":
     coords, coord_status, unresolved = resolve_coordinates(
         list(supply.index), list(demand.index), coords
     )
+    # Hasil pencarian OpenStreetMap yang pernah dijalankan (disimpan selama sesi)
+    geocoded = st.session_state.setdefault("geocoded_coords", {})
+    for row in coord_status:
+        key = (row["jenis"], row["node"])
+        if row["sumber koordinat"] == "BELUM ADA" and key in geocoded:
+            lat, lon, label = geocoded[key]
+            coords[key] = (lat, lon, label)
+            row.update({"sumber koordinat": "OpenStreetMap (periksa!)", "lokasi": label,
+                        "latitude": lat, "longitude": lon})
+    unresolved = [k for k in unresolved if k not in geocoded]
+
+    if st.session_state.get("geo_msg"):
+        st.info(st.session_state["geo_msg"])
+
     if unresolved:
         st.warning(
             f"{len(unresolved)} node belum punya koordinat dan tidak bisa dicocokkan otomatis. "
             "Isi latitude dan longitude pada tabel di bawah (klik sel, ketik angka); "
             "rute node tersebut akan langsung muncul di peta."
         )
+        if st.button(
+            "Cari otomatis lewat OpenStreetMap (Nominatim)",
+            help="Mencari nama tiap node di OpenStreetMap, maksimal 1 permintaan per detik. "
+                 "Hasilnya perkiraan, jadi periksa di tabel status koordinat.",
+        ):
+            import time
+
+            bar = st.progress(0.0, text="Mencari koordinat...")
+            for idx, (jenis, node) in enumerate(unresolved):
+                hit = None
+                for query in kandidat_pencarian(node):
+                    hit = geocode_nominatim(query)
+                    time.sleep(1.1)
+                    if hit:
+                        break
+                if hit:
+                    geocoded[(jenis, node)] = hit
+                bar.progress((idx + 1) / len(unresolved), text=f"Mencari koordinat... {idx + 1}/{len(unresolved)}")
+            st.session_state["geo_msg"] = (
+                f"Pencarian OpenStreetMap selesai: {sum(k in geocoded for k in unresolved)} dari "
+                f"{len(unresolved)} node ditemukan. Periksa hasilnya di tabel status koordinat."
+            )
+            st.rerun()
         editor_key = "manual_coords_" + hashlib.md5(
             "|".join(f"{j}:{n}" for j, n in unresolved).encode("utf-8")
         ).hexdigest()[:10]

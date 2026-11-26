@@ -282,6 +282,223 @@ def _cari_negara_dalam_teks(teks):
     return terbaik[1] if terbaik else None
 
 
+# Kota besar: nama|alias;alias|negara|lat|lon  (dicari sebagai kata utuh di dalam nama node)
+_KOTA = """
+Jakarta||Indonesia|-6.21|106.85
+Bandung||Indonesia|-6.92|107.61
+Surabaya||Indonesia|-7.25|112.75
+Medan||Indonesia|3.60|98.67
+Semarang||Indonesia|-6.97|110.42
+Yogyakarta|Jogja|Indonesia|-7.80|110.36
+Denpasar|Bali|Indonesia|-8.65|115.22
+Makassar||Indonesia|-5.15|119.43
+Bekasi||Indonesia|-6.24|106.99
+Tangerang||Indonesia|-6.18|106.63
+Cikarang||Indonesia|-6.31|107.15
+Sydney||Australia|-33.87|151.21
+Melbourne||Australia|-37.81|144.96
+Brisbane||Australia|-27.47|153.03
+Perth||Australia|-31.95|115.86
+Adelaide||Australia|-34.93|138.60
+Auckland||New Zealand|-36.85|174.76
+Bangkok||Thailand|13.76|100.50
+Chiang Mai||Thailand|18.79|98.98
+Kuala Lumpur||Malaysia|3.14|101.69
+Penang||Malaysia|5.41|100.33
+Singapore|Singapura|Singapore|1.35|103.82
+Hanoi||Vietnam|21.03|105.85
+Ho Chi Minh|Saigon;Ho Chi Minh City|Vietnam|10.82|106.63
+Manila||Philippines|14.60|120.98
+Phnom Penh||Cambodia|11.56|104.93
+Yangon|Rangoon|Myanmar|16.87|96.20
+Seoul||South Korea|37.57|126.98
+Busan||South Korea|35.18|129.08
+Incheon||South Korea|37.46|126.71
+Tokyo||Japan|35.68|139.69
+Osaka||Japan|34.69|135.50
+Kyoto||Japan|35.01|135.77
+Nagoya||Japan|35.18|136.91
+Yokohama||Japan|35.44|139.64
+Beijing|Peking|China|39.90|116.41
+Shanghai||China|31.23|121.47
+Shenzhen||China|22.54|114.06
+Guangzhou|Canton|China|23.13|113.26
+Hangzhou||China|30.27|120.15
+Chengdu||China|30.57|104.07
+Wuhan||China|30.59|114.31
+Hong Kong||China|22.32|114.17
+Taipei||Taiwan|25.03|121.57
+Ulaanbaatar||Mongolia|47.89|106.91
+Mumbai|Bombay|India|19.08|72.88
+New Delhi|Delhi|India|28.61|77.21
+Hyderabad||India|17.39|78.49
+Bengaluru|Bangalore|India|12.97|77.59
+Chennai|Madras|India|13.08|80.27
+Kolkata|Calcutta|India|22.57|88.36
+Pune||India|18.52|73.86
+Ahmedabad||India|23.02|72.57
+Vadodara|Baroda|India|22.31|73.18
+Goa||India|15.50|73.83
+Gurugram|Gurgaon|India|28.46|77.03
+Jaipur||India|26.91|75.79
+Dhaka||Bangladesh|23.81|90.41
+Karachi||Pakistan|24.86|67.01
+Lahore||Pakistan|31.55|74.34
+Islamabad||Pakistan|33.69|73.05
+Colombo||Sri Lanka|6.93|79.86
+Kathmandu||Nepal|27.72|85.32
+Kabul||Afghanistan|34.53|69.17
+Tehran||Iran|35.69|51.39
+Baghdad||Iraq|33.31|44.36
+Dubai||United Arab Emirates|25.20|55.27
+Abu Dhabi||United Arab Emirates|24.45|54.38
+Riyadh||Saudi Arabia|24.71|46.68
+Jeddah||Saudi Arabia|21.54|39.17
+Doha||Qatar|25.29|51.53
+Tel Aviv||Israel|32.09|34.78
+Jerusalem||Israel|31.77|35.21
+Amman||Jordan|31.95|35.93
+Beirut||Lebanon|33.89|35.50
+Istanbul||Turkey|41.01|28.98
+Ankara||Turkey|39.93|32.86
+Cairo||Egypt|30.04|31.24
+Alexandria||Egypt|31.20|29.92
+Casablanca||Morocco|33.57|-7.59
+Rabat||Morocco|34.02|-6.83
+Algiers||Algeria|36.75|3.06
+Tunis||Tunisia|36.81|10.18
+Tripoli||Libya|32.89|13.19
+Khartoum||Sudan|15.50|32.56
+Addis Ababa||Ethiopia|9.03|38.74
+Nairobi||Kenya|-1.29|36.82
+Mombasa||Kenya|-4.04|39.67
+Kampala||Uganda|0.35|32.58
+Kigali||Rwanda|-1.95|30.06
+Dar es Salaam||Tanzania|-6.79|39.21
+Lusaka||Zambia|-15.39|28.32
+Harare||Zimbabwe|-17.83|31.05
+Maputo||Mozambique|-25.97|32.57
+Lilongwe||Malawi|-13.96|33.77
+Johannesburg|Joburg|South Africa|-26.20|28.05
+Pretoria||South Africa|-25.75|28.19
+Cape Town||South Africa|-33.92|18.42
+Durban||South Africa|-29.86|31.02
+Windhoek||Namibia|-22.56|17.08
+Gaborone||Botswana|-24.65|25.91
+Luanda||Angola|-8.84|13.23
+Kinshasa||Congo, DRC|-4.44|15.27
+Lagos||Nigeria|6.52|3.38
+Abuja||Nigeria|9.06|7.49
+Accra||Ghana|5.60|-0.19
+Abidjan||Cote d'Ivoire|5.36|-4.01
+Dakar||Senegal|14.72|-17.47
+Bamako||Mali|12.64|-8.00
+Douala||Cameroon|4.05|9.77
+Yaounde||Cameroon|3.85|11.50
+London||United Kingdom|51.51|-0.13
+Cambridge||United Kingdom|52.21|0.12
+Oxford||United Kingdom|51.75|-1.26
+Manchester||United Kingdom|53.48|-2.24
+Edinburgh||United Kingdom|55.95|-3.19
+Brentford||United Kingdom|51.49|-0.31
+Dublin||Ireland|53.35|-6.26
+Paris||France|48.86|2.35
+Lyon||France|45.76|4.84
+Marseille||France|43.30|5.37
+Berlin||Germany|52.52|13.40
+Frankfurt||Germany|50.11|8.68
+Munich|Muenchen|Germany|48.14|11.58
+Hamburg||Germany|53.55|9.99
+Leverkusen||Germany|51.03|6.98
+Basel||Switzerland|47.56|7.59
+Zurich||Switzerland|47.38|8.54
+Geneva|Geneve|Switzerland|46.20|6.14
+Bern||Switzerland|46.95|7.45
+Vienna||Austria|48.21|16.37
+Brussels||Belgium|50.85|4.35
+Antwerp||Belgium|51.22|4.40
+Amsterdam||Netherlands|52.37|4.90
+Rotterdam||Netherlands|51.92|4.48
+Copenhagen||Denmark|55.68|12.57
+Stockholm||Sweden|59.33|18.07
+Oslo||Norway|59.91|10.75
+Helsinki||Finland|60.17|24.94
+Madrid||Spain|40.42|-3.70
+Barcelona||Spain|41.39|2.17
+Lisbon||Portugal|38.72|-9.14
+Rome||Italy|41.90|12.50
+Milan||Italy|45.46|9.19
+Warsaw||Poland|52.23|21.01
+Prague||Czech Republic|50.08|14.44
+Budapest||Hungary|47.50|19.04
+Bucharest||Romania|44.43|26.10
+Sofia||Bulgaria|42.70|23.32
+Athens||Greece|37.98|23.73
+Moscow||Russia|55.76|37.62
+Saint Petersburg|St Petersburg|Russia|59.93|30.34
+Kyiv|Kiev|Ukraine|50.45|30.52
+New York||United States|40.71|-74.01
+Boston||United States|42.36|-71.06
+Philadelphia||United States|39.95|-75.17
+Washington||United States|38.91|-77.04
+Atlanta||United States|33.75|-84.39
+Chicago||United States|41.88|-87.63
+Houston||United States|29.76|-95.37
+Dallas||United States|32.78|-96.80
+Los Angeles||United States|34.05|-118.24
+San Francisco||United States|37.77|-122.42
+San Diego||United States|32.72|-117.16
+Seattle||United States|47.61|-122.33
+Miami||United States|25.76|-80.19
+Denver||United States|39.74|-104.99
+Toronto||Canada|43.65|-79.38
+Montreal||Canada|45.50|-73.57
+Vancouver||Canada|49.28|-123.12
+Ottawa||Canada|45.42|-75.70
+Mexico City||Mexico|19.43|-99.13
+Havana||Cuba|23.11|-82.37
+Port-au-Prince||Haiti|18.54|-72.34
+Santo Domingo||Dominican Republic|18.49|-69.93
+Guatemala City||Guatemala|14.63|-90.51
+Panama City||Panama|8.98|-79.52
+Bogota||Colombia|4.71|-74.07
+Caracas||Venezuela|10.48|-66.90
+Quito||Ecuador|-0.18|-78.47
+Lima||Peru|-12.05|-77.04
+La Paz||Bolivia|-16.50|-68.15
+Santiago||Chile|-33.45|-70.67
+Buenos Aires||Argentina|-34.60|-58.38
+Montevideo||Uruguay|-34.90|-56.19
+Sao Paulo||Brazil|-23.55|-46.63
+Rio de Janeiro|Rio|Brazil|-22.91|-43.17
+Brasilia||Brazil|-15.79|-47.88
+"""
+
+
+def _indeks_kota():
+    idx = {}
+    for baris in _KOTA.strip().splitlines():
+        nama, alias, negara, lat, lon = baris.split('|')
+        for a in [nama] + [x for x in alias.split(';') if x]:
+            idx[_norm(a)] = (nama, float(lat), float(lon), negara)
+    return idx
+
+
+_IDX_KOTA = _indeks_kota()
+
+
+def _cari_kota_dalam_teks(teks, tepat=False):
+    """Cari nama kota (kata utuh) di dalam teks; yang terpanjang menang."""
+    t = ' ' + _norm(teks) + ' '
+    if tepat:
+        return _IDX_KOTA.get(_norm(teks))
+    terbaik = None
+    for alias, v in _IDX_KOTA.items():
+        if ' ' + alias + ' ' in t and (terbaik is None or len(alias) > len(terbaik[0])):
+            terbaik = (alias, v)
+    return terbaik[1] if terbaik else None
+
+
 def resolve_coordinates(nama_sumber, nama_tujuan, base=None):
     """Cocokkan semua node ke koordinat.
 
@@ -307,8 +524,16 @@ def resolve_coordinates(nama_sumber, nama_tujuan, base=None):
             if mirip:
                 v = bawaan[(jenis, kunci_bawaan[mirip[0]])]
                 hasil, cara = v, 'nama mirip: ' + kunci_bawaan[mirip[0]]
+            if hasil is None and jenis == 'tujuan':
+                neg = _cari_negara_tepat(n)
+                if neg is not None:
+                    hasil, cara = (neg[1], neg[2], 'ibu kota ' + neg[0]), 'negara: ' + neg[0]
             if hasil is None:
-                neg = _cari_negara_tepat(n) if jenis == 'tujuan' else None
+                kt = _cari_kota_dalam_teks(n)
+                if kt is not None:
+                    hasil, cara = (kt[1], kt[2], kt[0] + ', ' + kt[3]), 'kota: ' + kt[0]
+            if hasil is None:
+                neg = None
                 if neg is None:
                     neg = _cari_negara_dalam_teks(n)
                 if neg is None and jenis == 'tujuan':
@@ -325,6 +550,46 @@ def resolve_coordinates(nama_sumber, nama_tujuan, base=None):
                 status.append({'jenis': jenis, 'node': n, 'sumber koordinat': cara,
                                'lokasi': hasil[2], 'latitude': hasil[0], 'longitude': hasil[1]})
     return coords, status, belum
+
+
+def kandidat_pencarian(node):
+    """Kata kunci pencarian untuk geocoding: isi kurung dulu, lalu nama tanpa kurung, lalu nama penuh."""
+    import re
+    n = str(node).strip()
+    out = []
+    for p in re.findall(r'\(([^)]*)\)', n):
+        if p.strip():
+            out.append(p.strip())
+    tanpa = re.sub(r'\([^)]*\)', ' ', n).strip()
+    if tanpa:
+        out.append(tanpa)
+    out.append(n)
+    seen, hasil = set(), []
+    for q in out:
+        if q.lower() not in seen:
+            seen.add(q.lower()); hasil.append(q)
+    return hasil
+
+
+def geocode_nominatim(query, timeout=10):
+    """Cari satu tempat lewat OpenStreetMap Nominatim. Mengembalikan (lat, lon, label) atau None.
+
+    Patuhi kebijakan Nominatim: maksimal 1 permintaan per detik dan User-Agent yang jelas.
+    """
+    import urllib.parse
+    import urllib.request
+    url = 'https://nominatim.openstreetmap.org/search?' + urllib.parse.urlencode(
+        {'q': query, 'format': 'json', 'limit': 1})
+    req = urllib.request.Request(url, headers={'User-Agent': 'scms-dashboard-streamlit/1.0 (Alfamath/Dashboard)'})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            data = json.loads(r.read().decode('utf-8'))
+    except Exception:
+        return None
+    if not data:
+        return None
+    d = data[0]
+    return float(d['lat']), float(d['lon']), str(d.get('display_name', query))[:80]
 
 
 def default_coordinates():
